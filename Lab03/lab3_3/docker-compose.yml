@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: secret1
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: secret2
+    ports:
+      - "33060:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  quotes-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quotes-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/quotes_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: secret1
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
+    driver: local
